@@ -17,7 +17,9 @@ add_action('admin_menu', 'acf_php_recovery_menu', 100);
 function acf_php_recovery_page() {
   global $wpdb;
 
-  $acf_local = acf_local();
+
+$acf_local_fields = acf_get_local_fields();
+$acf_local_groups = acf_get_local_field_groups();
 
   // process the form
   if(isset($_POST['acf_php_recovery_action']) && $_POST['acf_php_recovery_action'] == 'import' && isset($_POST['fieldsets']) && check_admin_referer( 'acf_php_recovery' ) ) {
@@ -28,7 +30,7 @@ function acf_php_recovery_page() {
     $key_to_post_id = array(); // Group or field key to post id
 
     // Now we can import the groups
-    foreach( $acf_local->groups as $key => $group ) {
+    foreach( $acf_local_groups as $key => $group ) {
       $group['title'] = $group['title'] . ' (Recovered)';
 
       // Only import those that were selected
@@ -50,7 +52,7 @@ function acf_php_recovery_page() {
     $imported_fields = array(); // Keep track of the already imported
     do {
       $num_import = 0;
-      foreach( $acf_local->fields as $key => $field ) {
+      foreach( $acf_local_fields as $key => $field ) {
         if ( !in_array($key, $imported_fields) && in_array($field['parent'], $field_parents) ) {
           $num_import = $num_import + 1;
           $field_parents[] = $key;
@@ -111,7 +113,7 @@ function acf_php_recovery_page() {
     </thead>
     <tbody>
     <?php
-    foreach( $acf_local->groups as $key => $field_group ): ?>
+    foreach( $acf_local_groups as $key => $field_group ): ?>
     <tr>
       <td><input type="checkbox" name="fieldsets[]" value="<?php echo esc_attr($key); ?>" /></td>
       <td><?php echo $field_group['title']; ?></td>
@@ -148,7 +150,7 @@ function acf_php_recovery_page() {
 
   <h3>Registered Field Groups</h3>
   <pre class="">
-  <?php echo var_export( $acf_local->groups ); ?>
+  <?php echo var_export( $acf_local_groups ); ?>
   </pre>
 
   </div>
